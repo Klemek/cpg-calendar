@@ -32,6 +32,32 @@ table{
     font-size: .9em;
 }
 
+table.timetable td.film{
+    background-position: center;
+    background-size: auto 100%;
+    cursor: pointer;
+}
+
+table.timetable td.quart {
+    border-top: 1px solid #BDBDBD;
+}
+
+table.timetable td.hour, table.timetable td.film {
+    border-top: 1px solid #424242;
+}
+
+table.timetable td.start, table.timetable td.film {
+    border-left: 1px solid #424242;
+}
+
+table.timetable td:last-child, table.timetable td.film {
+    border-right: 1px solid #424242;
+}
+
+table.timetable tr:last-child td, table.timetable td.film{
+    border-bottom: 1px solid #424242;
+}
+
 @media only screen and (min-width: 768px) {
     main {
         max-width: 42rem;

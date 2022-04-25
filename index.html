@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Change this you moron</title>
+    <title>CPG Calendar</title>
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="libs/vue.global.js"></script>
     <script type="text/javascript" src="main.js"></script>
@@ -21,11 +21,62 @@
 </head>
 <body>
     <main id="app" style="display:none">
-        <h1>{{title}}</h1>
+        <h1>CPG Calendar</h1>
         <br>
-        <p v-html="content"></p>
+        <table class="config">
+            <tr>
+                <td>Theater:</td>
+                <td>
+                    <span v-if="theaters">
+                        <input list="theaters" v-model="theaterId" placeholder="select theater">
+                        <datalist id="theaters">
+                            <option v-for="theater in theaters" v-bind:value="theater.slug">{{theater.name}}</option>
+                        </datalist>
+                    </span>
+                    <span v-else>
+                        Loading...
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td>Versions:</td>
+                <td>
+                    <span v-for="version in versions">
+                        <input type="checkbox" v-bind:id="version.id" v-on:input="this.changeVersions" v-model="version.selected">&nbsp;<label v-bind:for="version.id">{{ version.id.toUpperCase() }}</label>&nbsp;&nbsp;
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td>Start date:</td>
+                <td><input type="date" v-model="startDateInput"></td>
+            </tr>
+        </table>
         <br>
-        <small><a href="https://twitter.com/_klemek" target="_blank">@Klemek</a> - <a href="" target="_blank">Github Repository</a> - {{currentYear}}</small>
+        <table class="timetable" v-if="showTimetable">
+            <tr>
+                <th></th>
+                <template v-for="column in columns">
+                    <th v-if="column.id === 0" v-bind:colspan="maxColumnWidth[column.date]">{{column.format}}</th>
+                </template>
+            </tr>
+            <tr class="time" v-for="row in rows">
+                <th v-if="row.minute === 0" rowspan="12">
+                    {{row.format}}
+                </th>
+                <template v-for="column in columns">
+                    <td 
+                        v-if="shouldShow(row, column)"
+                        v-bind:rowspan="rowSpan(row, column)"
+                        v-bind:class="getClass(row, column)"
+                        v-bind:title="getInfo(row, column)"
+                        v-bind:style="getStyle(row, column)"
+                        v-on:click="onClick(row, column)"
+                    ></td>
+                </template>
+            </tr>
+        </table>
+        <h2 v-if="theaterId && !showTimetable">Loading... <span v-if="total > 0">({{total - remaining}}/{{total}})</span></h2>
+        <small><a href="https://twitter.com/_klemek" target="_blank">@Klemek</a> - <a href="https://github.com/klemek/cpg-calendar" target="_blank">Github Repository</a> - 2022</small>
     </main>
 </body>
 </html>
