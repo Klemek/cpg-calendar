@@ -242,7 +242,7 @@ let app = {
                     const current = utils.date.addTime(date, row.time);
                     const movies = this.timetable[date].filter(
                         showtimes => showtimes.start <= current &&
-                        showtimes.end >= current &&
+                        showtimes.end > current &&
                         this.versions[showtimes.version]?.selected,
                     );
                     const ids = movies.map(movie => movie.id).filter(id => id !== null);
