@@ -36,6 +36,48 @@ const utils = {
             });
         },
     },
+    cookies: {
+        /**
+         * Save a value in a cookie
+         * @param {string} name
+         * @param {string} value
+         * @param {number | undefined} days
+         */
+        set: function (name, value, days = undefined) {
+            const maxAge = !days ? undefined : days * 864e2;
+            document.cookie = `${name}=${encodeURIComponent(value)}${maxAge ? `;max-age=${maxAge};` : ''}`;
+        },
+        /**
+         * Get a value from a cookie
+         * @param {string} name
+         * @return {string} value from cookie or empty if not found
+         */
+        get: function (name) {
+            return document.cookie.split('; ').reduce(function (r, v) {
+                const parts = v.split('=');
+                return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+            }, '');
+        },
+        /**
+         * Delete a cookie
+         * @param {string} name
+         */
+        delete: function (name) {
+            this.set(name, '', -1);
+        },
+        /**
+         * Clear all cookies
+         */
+        clear: function () {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                const eqPos = cookie.indexOf('=');
+                const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+            }
+        },
+    },
     date: {
         formatApi: function(date) {
             return `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)}`;
@@ -84,6 +126,7 @@ let app = {
     watch: {
         theaterId(newValue) {
             if (newValue) {
+                utils.cookies.set('theaterId', newValue, 300);
                 setTimeout(this.fetchZoneDetails);
             }
         },
@@ -284,7 +327,14 @@ let app = {
     mounted: function () {
         console.log('app mounted');
         setTimeout(this.showApp);
-        this.fetchTheaters();
+        this.fetchTheaters()
+            .then(() => {
+                const savedValue = utils.cookies.get('theaterId');
+                if (savedValue) {
+                    this.theaterId = savedValue;
+                    setTimeout(this.fetchZoneDetails);
+                }
+            });
     },
 };
 
